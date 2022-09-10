@@ -4,6 +4,7 @@ This client was created to interface with Notion using the official API and Pyth
 
 # Important Notes
 
+
 1. **All databases you plan to use, including any relations of rollups, must be added to the integration**
 
 2. **Items in the `Title` column should all have unique names. Duplicates will create errors with this client.**
