@@ -1,6 +1,6 @@
 # Introduction
 
-This client was created to interface with Notion using the official API using Python.
+This client was created to interface with Notion using the official API and Python.
 # Setup
 
 A Notion integration must be made before using this client. Click [here](https://developers.notion.com/docs/getting-started) for more infromation. 
@@ -94,7 +94,7 @@ This will change the database to the following:
 ## Notion.delete()
 
 This method can be used to delete a row, using the title as an index. 
-For example, the following code will delete the row at `Item 2`:
+For example, the following code will delete the row at `Item 2` from **Table 2**:
 
 **Use this method carefully, as data cannot yet be restored from a file.**
 
