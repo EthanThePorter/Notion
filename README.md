@@ -9,8 +9,6 @@ Follow Steps 1 & 2. Ensure all content capabilities are enabled.
 Next, copy the `Notion.py` and `notion_key.py` to the directory your script is using.
 Change the `key` variable found in `notion_key.py` to the token obtained from the Notion integration.
 
-This client can be used by creating an object from the `Notion` class as follows:
-
 This client can then be used by importing the `Notion` class and creating an object from it as follows:
 
 ```python
