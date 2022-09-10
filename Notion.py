@@ -142,6 +142,11 @@ class Notion:
         return values
 
     def set(self, name, column_name, value):
+        """
+        Function to update values in Notion database.
+        For general setup, refer to https://developers.notion.com/reference/patch-page.
+        For configuring properties, refer to https://developers.notion.com/reference/property-value-object.
+        """
         # Get ID for name
         ID = self.id(name)
         # Get URL to send request to
