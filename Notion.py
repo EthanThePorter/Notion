@@ -43,7 +43,6 @@ class Notion:
         # Format response as JSON
         self.data = response.json()
         return self.data
-
     def save(self, filename):
         """
         Save self.data JSON to file
@@ -128,7 +127,6 @@ class Notion:
             case 'rollup':
                 return self.get_rollup_column(column_name)
 
-
     def index(self, index_column_name, index_value, target_column_name):
         """
         Gets list of all indexes for a specified value
@@ -164,7 +162,7 @@ class Notion:
             values.append(target_column[i])
         return values
 
-    def set(self, index: str | int, column_name, value):
+    def set(self, index: str | int | list, column_name, value):
         """
         Function to update values in Notion database.
         For general setup, refer to https://developers.notion.com/reference/patch-page.
@@ -173,93 +171,187 @@ class Notion:
         :param column_name: Name of column to that desired value is in
         :param value: New value to change
         """
-        # Get ID for index
-        if type(index) is int:
-            ID = self.id(N.get(self.name_text)[index])
-        else:
-            ID = self.id(index)
-        # Get URL to send request to
-        URL = f'https://api.notion.com/v1/pages/{ID}'
-        # Get type of column
-        column_type = self.data['results'][0]['properties'][column_name]['type']
+        if type(index) is list:
+            # Initialize lists for URLs and data
+            URL_list = []
+            data_list = []
+            # Loop through index list and get
+            for i in index:
+                # Get ID for index
+                if type(i) is int:
+                    ID = self.id(N.get(self.name_text)[i])
+                else:
+                    ID = self.id(i)
+                # Get URL to send request to
+                URL = f'https://api.notion.com/v1/pages/{ID}'
+                # Get type of column
+                column_type = self.data['results'][0]['properties'][column_name]['type']
+                # Use type to get data path
+                match column_type:
+                    case 'number':
+                        data = json.dumps({
+                            'properties': {
+                                column_name: {
+                                    'number': value
+                                }
+                            }
+                        })
+                    case 'title':
+                        data = json.dumps({
+                            'properties': {
+                                column_name: {
+                                    "title": [
+                                        {
+                                            "type": "text",
+                                            "text": {
+                                                "content": value
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        })
+                    case 'rich_text':
+                        data = json.dumps({
+                            'properties': {
+                                column_name: {
+                                    'rich_text': [
+                                        {
+                                            'type': 'text',
+                                            'text': {
+                                                'content': value
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        })
+                    case 'select':
+                        data = json.dumps({
+                            'properties': {
+                                column_name: {
+                                    'select': {
+                                        'name': value
+                                    }
+                                }
+                            }
+                        })
+                    case 'status':
+                        data = json.dumps({
+                            'properties': {
+                                column_name: {
+                                    'status': {
+                                        'name': value
+                                    }
+                                }
+                            }
+                        })
+                    case 'date':
+                        data = json.dumps({
+                            'properties': {
+                                column_name: {
+                                    'date': {
+                                        'start': value
+                                    }
+                                }
+                            }
+                        })
+                # Add URL and data to respective lists
+                URL_list.append(URL)
+                data_list.append(data)
+            print(URL_list)
+            # Send requests to API and output results
+            responses = asyncio.run(self.request_urls_post(URL_list, data_list))
+            for response in responses:
+                print(json.dumps(response))
 
-        # Use type to get data path
-        match column_type:
-            case 'number':
-                data = json.dumps({
-                    'properties': {
-                        column_name: {
-                            'number': value
+        else:
+            # Get ID for index
+            if type(index) is int:
+                ID = self.id(N.get(self.name_text)[index])
+            else:
+                ID = self.id(index)
+            # Get URL to send request to
+            URL = f'https://api.notion.com/v1/pages/{ID}'
+            # Get type of column
+            column_type = self.data['results'][0]['properties'][column_name]['type']
+            # Use type to get data path
+            match column_type:
+                case 'number':
+                    data = json.dumps({
+                        'properties': {
+                            column_name: {
+                                'number': value
+                            }
                         }
-                    }
-                })
-            case 'title':
-                data = json.dumps({
-                    'properties': {
-                        column_name: {
-                            "title": [
-                                {
-                                    "type": "text",
-                                    "text": {
-                                        "content": value
+                    })
+                case 'title':
+                    data = json.dumps({
+                        'properties': {
+                            column_name: {
+                                "title": [
+                                    {
+                                        "type": "text",
+                                        "text": {
+                                            "content": value
+                                        }
                                     }
-                                }
-                            ]
+                                ]
+                            }
                         }
-                    }
-                })
-            case 'rich_text':
-                data = json.dumps({
-                    'properties': {
-                        column_name: {
-                            'rich_text': [
-                                {
-                                    'type': 'text',
-                                    'text': {
-                                        'content': value
+                    })
+                case 'rich_text':
+                    data = json.dumps({
+                        'properties': {
+                            column_name: {
+                                'rich_text': [
+                                    {
+                                        'type': 'text',
+                                        'text': {
+                                            'content': value
+                                        }
                                     }
+                                ]
+                            }
+                        }
+                    })
+                case 'select':
+                    data = json.dumps({
+                        'properties': {
+                            column_name: {
+                                'select': {
+                                    'name': value
                                 }
-                            ]
-                        }
-                    }
-                })
-            case 'select':
-                data = json.dumps({
-                    'properties': {
-                        column_name: {
-                            'select': {
-                                'name': value
                             }
                         }
-                    }
-                })
-            case 'status':
-                data = json.dumps({
-                    'properties': {
-                        column_name: {
-                            'status': {
-                                'name': value
+                    })
+                case 'status':
+                    data = json.dumps({
+                        'properties': {
+                            column_name: {
+                                'status': {
+                                    'name': value
+                                }
                             }
                         }
-                    }
-                })
-            case 'date':
-                data = json.dumps({
-                    'properties': {
-                        column_name: {
-                            'date': {
-                                'start': value
+                    })
+                case 'date':
+                    data = json.dumps({
+                        'properties': {
+                            column_name: {
+                                'date': {
+                                    'start': value
+                                }
                             }
                         }
-                    }
-                })
-            # Need to implement Multi-Select, Formula, Relation, Rollup
-        # Send request to API
-        response = requests.request("PATCH", URL, headers=self.headers, data=data)
-        print(response.status_code)
-        print(response.text)
-        # Refresh data
-        self.refresh()
+                    })
+            # Send request to API
+            response = requests.request("PATCH", URL, headers=self.headers, data=data)
+            print(response.status_code)
+            print(response.text)
+            # Refresh data
+            self.refresh()
+
 
     def add(self, properties):
         """
@@ -376,6 +468,21 @@ class Notion:
         async with session.get(url, headers=self.headers) as response:
             return await response.json()
 
+    async def request_urls_post(self, urls, data_list):
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for i in range(len(urls)):
+                tasks.append(
+                    asyncio.ensure_future(
+                        self.post_url(session, urls[i], data_list[i])
+                    )
+                )
+            return await asyncio.gather(*tasks)
+
+    async def post_url(self, session: aiohttp.ClientSession, url: str, data):
+        async with session.patch(url, headers=self.headers, data=data) as response:
+            return await response.json()
+
 
 
 if __name__ == '__main__':
@@ -385,9 +492,13 @@ if __name__ == '__main__':
     # Initialize Notion object and save to file
     N = Notion(database_id)
 
+    # Initialize list of indices that satisfy conditions
+    indices = []
     # Get rollup Names
     rollup = N.get('Rollup')
     # Loop through rollup list and check if item is complete
     for i in range(len(rollup)):
         if rollup[i] == 'Complete':
-            N.set(i, 'Select', 'Complete')
+            indices.append(i)
+    # Set data
+    N.set(indices, 'Select', 'Complete')
