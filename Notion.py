@@ -1,5 +1,7 @@
 import requests
 import json
+import asyncio
+import aiohttp
 
 # Access to Notion database requires security key. Refer to https://developers.notion.com/docs/getting-started
 from notion_key import key
@@ -11,6 +13,7 @@ class Notion:
         """
         Gets data on initialization
         :param database_id: Notion database ID. Refer to https://developers.notion.com/docs/getting-started
+        :param name_text: Text used as identifier for 'title' type column. Default is Name
         """
         # Initialize text for Name column
         self.name_text = name_text
@@ -47,8 +50,17 @@ class Notion:
         :param filename: Format: 'fileName.json'
         """
         # Write JSON to file
-        with open('data.json', 'w', encoding='utf-8') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, ensure_ascii=False, indent=4)
+
+    @staticmethod
+    def save_dict(dictionary, filename):
+        """
+        Saves python dictionary to JSON file
+        """
+        # Write JSON to file
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(dictionary, f, ensure_ascii=False, indent=4)
 
     def id_all(self):
         """
@@ -68,7 +80,8 @@ class Notion:
 
     def get(self, column_name):
         """
-        Function to get all data from a specified column
+        Function to get all data from a specified column.
+        For configuring properties, refer to https://developers.notion.com/reference/property-value-object.
         :return: Returns column as a list
         """
         # Get type of column
@@ -105,6 +118,16 @@ class Notion:
                     except (TypeError, IndexError):
                         elements.append(None)
                 return elements
+            case 'date':
+                for element in self.data['results']:
+                    try:
+                        elements.append(element['properties'][column_name]['date']['start'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+            case 'rollup':
+                return self.get_rollup_column(column_name)
+
 
     def index(self, index_column_name, index_value, target_column_name):
         """
@@ -268,6 +291,86 @@ class Notion:
         print(response.status_code)
         print(response.text)
 
+    def get_property_id(self, item_property):
+        return self.data['results'][0]['properties'][item_property]['id']
+
+    def get_rollup_column(self, column_name):
+        # Get list of items
+        items = self.get(self.name_text)
+        # Get IDs for each item
+        item_ids = []
+        for item in items:
+            item_ids.append(self.id(item))
+        # Get column ID - "Property ID" in Notion terms
+        column_id = self.get_property_id(column_name)
+        # Initialize URLs for each request
+        URLs = []
+        for i in range(len(items)):
+            URLs.append(f'https://api.notion.com/v1/pages/{item_ids[i]}/properties/{column_id}')
+        # Send requests to API and output results - save first result to file
+        responses = asyncio.run(self.request_urls(URLs))
+        for response in responses:
+            print(json.dumps(response))
+        self.save_dict(responses[0], 'response.json')
+        # Get rollup column type
+        column_type = responses[0]['results'][0]['type']
+        print('Column Type:', column_type)
+        # Initialize list to save elements to
+        elements = []
+        # Use type to get data path
+        match column_type:
+            case 'title':
+                for element in responses:
+                    try:
+                        elements.append(element['results'][0]['title']['plain_text'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+            case 'rich_text':
+                for element in responses:
+                    try:
+                        elements.append(element['results'][0]['rich_text']['plain_text'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+            case 'number':
+                for element in responses:
+                    try:
+                        elements.append(element['results'][0]['number'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+            case 'select':
+                for element in responses:
+                    try:
+                        elements.append(element['results'][0]['select']['name'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+            case 'date':
+                for element in responses:
+                    try:
+                        elements.append(element['results'][0]['date']['start'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+
+    async def request_urls(self, urls):
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for url in urls:
+                tasks.append(
+                    asyncio.ensure_future(
+                        self.get_url(session, url)
+                    )
+                )
+            return await asyncio.gather(*tasks)
+
+    async def get_url(self, session: aiohttp.ClientSession, url: str):
+        async with session.get(url, headers=self.headers) as response:
+            return await response.json()
+
+
 
 if __name__ == '__main__':
 
@@ -275,6 +378,7 @@ if __name__ == '__main__':
     database_id = '087ed092c10f4535a91b7849b6f61928'
     # Initialize Notion object and save to file
     N = Notion(database_id)
+    N.save('data.json')
 
     # N.set('Number', 117, 247)
     # N.save('data.json')
@@ -283,4 +387,10 @@ if __name__ == '__main__':
     # print(names)
 
     N.set('Item 8', 'Select', 'Started')
+
+    elements = N.get('Rollup')
+    names = N.get('Name')
+    print(names)
+    print(elements)
+
 

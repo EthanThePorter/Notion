@@ -36,6 +36,8 @@ Names = N.get('Name')
 
 This will return a `list` of all the elements in the `'Name'` column and store the value in `Names`.
 
+**This function currently only supports `Title`, `Text`, `Number`, `Date`, `Select`, and `Rollup` column types**
+
 ## Notion.index()
 
 The `index()` method can be used to get the corresponding value of another column, given an index column and value.
