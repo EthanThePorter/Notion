@@ -3,8 +3,8 @@
 This client was created to interface with Notion using the official API and Python.
 # Setup
 
-A Notion integration must be made before using this client. Click [here](https://developers.notion.com/docs/getting-started) for more infromation. 
-Follow Steps 1 & 2. Ensure all content capabilites are enabled.
+A Notion integration must be made before using this client. Click [here](https://developers.notion.com/docs/getting-started) for more information. 
+Follow Steps 1 & 2. Ensure all content capabilities are enabled.
 
 Next, copy the `Notion.py` and `notion_key.py` to the directory your script is using.
 Change the `key` variable found in `notion_key.py` to the token obtained from the Notion integration.
