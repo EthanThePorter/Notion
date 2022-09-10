@@ -72,7 +72,7 @@ These are written in the scope of the code from the [Setup](#Setup) section.
 This method is used to change the value of a property, using the title as an index. It currently supports the `Title`, `Text`, `Number`, `Date`, and `Select` properties are supported. 
 The type of the column is automatically determined by the client.
 
-For example, consider [Table 1](###Table-1). To change the `Number` column's value for `Item 3` to `Sandwich`, the following code would be used:
+For example, consider [Table 1](#table-1). To change the `Number` column's value for `Item 3` to `Sandwich`, the following code would be used:
 
 ```python
 N.set(name='Item 3',
