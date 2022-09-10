@@ -43,6 +43,7 @@ class Notion:
         # Format response as JSON
         self.data = response.json()
         return self.data
+
     def save(self, filename):
         """
         Save self.data JSON to file
@@ -83,6 +84,8 @@ class Notion:
         For configuring properties, refer to https://developers.notion.com/reference/property-value-object.
         :return: Returns column as a list
         """
+        # Refresh data before accessing
+        self.refresh()
         # Get type of column
         column_type = self.data['results'][0]['properties'][column_name]['type']
         # Initialize list to save elements to
@@ -352,7 +355,6 @@ class Notion:
             # Refresh data
             self.refresh()
 
-
     def add(self, properties):
         """
         NOT YET FUNCTIONAL
@@ -482,7 +484,6 @@ class Notion:
     async def post_url(self, session: aiohttp.ClientSession, url: str, data):
         async with session.patch(url, headers=self.headers, data=data) as response:
             return await response.json()
-
 
 
 if __name__ == '__main__':
