@@ -15,6 +15,8 @@ This client was created to interface with Notion using the official API and Pyth
 A Notion integration must be made before using this client. Click [here](https://developers.notion.com/docs/getting-started) for more information. 
 Follow Steps 1 & 2. Ensure all content capabilities are enabled.
 
+**All databases you plan to use, including any relations of rollups, must be added to the integration**
+
 Next, copy the `Notion.py` and `notion_key.py` to the directory your script is using.
 Change the `key` variable found in `notion_key.py` to the token obtained from the Notion integration.
 
@@ -115,16 +117,6 @@ This will change the database to the following:
 | Item 1 | 14     | Turkey   |
 | Item 2 | 16     | Bacon    |
 | Item 3 | 18     | Sandwich |
-
-### Bulk Edits
-
-This method also supports bulk edits. Multiple indices can be changed to one value at the same time. For example:
-
-```python
-indices = [1, 5, 9]
-
-N.set(indices, 'Column Name', 'Value')
-```
 
 ## Notion.delete()
 
