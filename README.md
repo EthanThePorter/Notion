@@ -58,6 +58,11 @@ value = N.index(index_column_name='Name',
                 target_column_name='Text'
                 )
 ```
+Alternatively, this can be written as:
+```python
+value = N.index('Name', 'Item 2', 'Text')
+```
+
 `value` will be equal to `'Bacon'`.
 
 # Changing Data
@@ -77,6 +82,12 @@ N.set(name='Item 3',
       column_name='Number',
       value = 'Sandwich'
       )
+```
+
+Alternatively, this can be written as:
+
+```python
+N.set('Item 3', 'Number', 'Sandwich')
 ```
 
 This will change the database to the following:

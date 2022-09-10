@@ -232,7 +232,7 @@ class Notion:
         # Refresh data
         self.refresh()
 
-    def create(self, properties):
+    def add(self, properties):
         """
         NOT YET FUNCTIONAL
         Creates new page and adds page to database. Reference https://developers.notion.com/reference/post-page
@@ -279,8 +279,8 @@ if __name__ == '__main__':
     # N.set('Number', 117, 247)
     # N.save('data.json')
 
-    names = N.get('Name')
-    print(names)
+    # names = N.get('Name')
+    # print(names)
 
-    N.set('Item 4', 'Select', 'Complete')
+    N.set('Item 8', 'Select', 'Started')
 
