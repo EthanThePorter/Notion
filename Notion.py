@@ -378,19 +378,14 @@ if __name__ == '__main__':
     database_id = '087ed092c10f4535a91b7849b6f61928'
     # Initialize Notion object and save to file
     N = Notion(database_id)
-    N.save('data.json')
 
-    # N.set('Number', 117, 247)
-    # N.save('data.json')
-
-    # names = N.get('Name')
-    # print(names)
-
-    N.set('Item 8', 'Select', 'Started')
-
-    elements = N.get('Rollup')
-    names = N.get('Name')
-    print(names)
-    print(elements)
+    # Get item names
+    items = N.get('Name')
+    # Get rollup Names
+    rollup = N.get('Rollup')
+    # Loop through rollup list and check if item is complete
+    for i in range(len(rollup)):
+        if rollup[i] == 'Complete':
+            N.set(items[i], 'Select', 'Complete')
 
 
