@@ -164,14 +164,20 @@ class Notion:
             values.append(target_column[i])
         return values
 
-    def set(self, name, column_name, value):
+    def set(self, index: str | int, column_name, value):
         """
         Function to update values in Notion database.
         For general setup, refer to https://developers.notion.com/reference/patch-page.
         For configuring properties, refer to https://developers.notion.com/reference/property-value-object.
+        :param index: Either name or integer representing the row index.
+        :param column_name: Name of column to that desired value is in
+        :param value: New value to change
         """
-        # Get ID for name
-        ID = self.id(name)
+        # Get ID for index
+        if type(index) is int:
+            ID = self.id(N.get(self.name_text)[index])
+        else:
+            ID = self.id(index)
         # Get URL to send request to
         URL = f'https://api.notion.com/v1/pages/{ID}'
         # Get type of column
@@ -379,13 +385,9 @@ if __name__ == '__main__':
     # Initialize Notion object and save to file
     N = Notion(database_id)
 
-    # Get item names
-    items = N.get('Name')
     # Get rollup Names
     rollup = N.get('Rollup')
     # Loop through rollup list and check if item is complete
     for i in range(len(rollup)):
         if rollup[i] == 'Complete':
-            N.set(items[i], 'Select', 'Complete')
-
-
+            N.set(i, 'Select', 'Complete')

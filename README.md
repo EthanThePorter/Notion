@@ -82,9 +82,9 @@ The type of the column is automatically determined by the client.
 For example, consider **Table 1**. To change the `Number` column's value for `Item 3` to `Sandwich`, the following code would be used:
 
 ```python
-N.set(name='Item 3',
+N.set(index='Item 3',
       column_name='Number',
-      value = 'Sandwich'
+      value='Sandwich'
       )
 ```
 
@@ -92,6 +92,11 @@ Alternatively, this can be written as:
 
 ```python
 N.set('Item 3', 'Number', 'Sandwich')
+```
+
+Furthermore, instead of using the name as an index, the integer value of the index can be used as well as follows. **The integer index may not be in the order as seen on the Notion interface. Check the `Title` column beforehand.**
+```python
+N.set(2, 'Number', 'Sandwich')
 ```
 
 This will change the database to the following:
