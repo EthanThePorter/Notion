@@ -348,7 +348,9 @@ class Notion:
                         }
                     })
             # Send request to API
+            print('Sending POST Request...')
             response = requests.request("PATCH", URL, headers=self.headers, data=data)
+            print('POST Request Processed.\n')
             print(response.status_code)
             print(response.text)
             # Refresh data
@@ -413,9 +415,9 @@ class Notion:
         for response in responses:
             print(json.dumps(response))
         print('\n')
-        self.save_dict(responses[0], 'response.json')
         # Get rollup column type
-        column_type = responses[0]['results'][0]['type']
+        column_type = responses[-1]['results'][0]['type']
+        self.save_dict(responses[-1], 'response.json')
         # Initialize list to save elements to
         elements = []
         # Use type to get data path
@@ -503,4 +505,4 @@ if __name__ == '__main__':
         if rollup[i] == 'Complete':
             indices.append(i)
     # Set data
-    N.set(indices, 'Select', 'In Progress')
+    N.set(indices, 'Select', 'Complete')
