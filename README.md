@@ -1,6 +1,6 @@
 # Introduction
 
-This client was created to interface with Notion using the official API and Python.
+This client was created to interface with Notion using the official Notion API and Python.
 
 # Important Notes
 
