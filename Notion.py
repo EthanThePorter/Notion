@@ -417,7 +417,6 @@ class Notion:
         print('\n')
         # Get rollup column type
         column_type = responses[-1]['results'][0]['type']
-        self.save_dict(responses[-1], 'response.json')
         # Initialize list to save elements to
         elements = []
         # Use type to get data path
