@@ -124,6 +124,20 @@ class Notion:
                     except (TypeError, IndexError):
                         elements.append(None)
                 return elements
+            case 'email':
+                for element in self.data['results']:
+                    try:
+                        elements.append(element['properties'][column_name]['email'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
+            case 'email':
+                for element in self.data['results']:
+                    try:
+                        elements.append(element['properties'][column_name]['phone_number'])
+                    except (TypeError, IndexError):
+                        elements.append(None)
+                return elements
             case 'rollup':
                 return self.get_rollup_column(column_name)
 
