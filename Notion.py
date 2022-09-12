@@ -28,6 +28,7 @@ class Notion:
         print('Connecting...')
         # Send POST to server
         response = requests.post(self.URL, headers=self.headers)
+        print(f'Connected to {self.URL}')
         print('Database downloaded.\n')
         # Format response as JSON
         self.data = response.json()
@@ -274,9 +275,10 @@ class Notion:
                 URL_list.append(URL)
                 data_list.append(data)
             # Send requests to API and output results
-            print('Sending POST Request...')
-            responses = asyncio.run(self.request_urls_post(URL_list, data_list))
-            print('POST Request Processed.\n')
+            print('Sending PATCH Request...')
+            responses = asyncio.run(self.request_urls_patch(URL_list, data_list))
+            print(f'"{column_name}" Property Updated.')
+            print('PATCH Request Processed.\n')
             for response in responses:
                 print(json.dumps(response))
             print('\n')
@@ -364,6 +366,7 @@ class Notion:
             # Send request to API
             print('Sending POST Request...')
             response = requests.request("PATCH", URL, headers=self.headers, data=data)
+            print(f'"{column_name}" Property Updated.')
             print('POST Request Processed.\n')
             print(response.status_code)
             print(response.text)
@@ -425,6 +428,7 @@ class Notion:
         # Send requests to API and output results - save first result to file
         print('Sending GET Request...')
         responses = asyncio.run(self.request_urls(URLs))
+        print(f'"{column_name}" Property Retrieved.')
         print('GET Request Processed.\n')
         for response in responses:
             print(json.dumps(response))
@@ -486,18 +490,18 @@ class Notion:
         async with session.get(url, headers=self.headers) as response:
             return await response.json()
 
-    async def request_urls_post(self, urls, data_list):
+    async def request_urls_patch(self, urls, data_list):
         async with aiohttp.ClientSession() as session:
             tasks = []
             for i in range(len(urls)):
                 tasks.append(
                     asyncio.ensure_future(
-                        self.post_url(session, urls[i], data_list[i])
+                        self.patch_url(session, urls[i], data_list[i])
                     )
                 )
             return await asyncio.gather(*tasks)
 
-    async def post_url(self, session: aiohttp.ClientSession, url: str, data):
+    async def patch_url(self, session: aiohttp.ClientSession, url: str, data):
         async with session.patch(url, headers=self.headers, data=data) as response:
             return await response.json()
 
