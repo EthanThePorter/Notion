@@ -25,8 +25,10 @@ class Notion:
             'Notion-Version': '2022-06-28',
             'Content-Type': 'application/json'
         }
+        print('Connecting...')
         # Send POST to server
         response = requests.post(self.URL, headers=self.headers)
+        print('Database downloaded.\n')
         # Format response as JSON
         self.data = response.json()
 
@@ -36,10 +38,7 @@ class Notion:
         :return: Data from Notion database in JSON format
         """
         # Send POST to server
-        response = requests.post(self.URL, headers={
-            'Authorization': f'Bearer {key}',
-            'Notion-Version': '2022-06-28'
-        })
+        response = requests.post(self.URL, headers=self.headers)
         # Format response as JSON
         self.data = response.json()
         return self.data
@@ -84,8 +83,6 @@ class Notion:
         For configuring properties, refer to https://developers.notion.com/reference/property-value-object.
         :return: Returns column as a list
         """
-        # Refresh data before accessing
-        self.refresh()
         # Get type of column
         column_type = self.data['results'][0]['properties'][column_name]['type']
         # Initialize list to save elements to
@@ -262,11 +259,13 @@ class Notion:
                 # Add URL and data to respective lists
                 URL_list.append(URL)
                 data_list.append(data)
-            print(URL_list)
             # Send requests to API and output results
+            print('Sending POST Request...')
             responses = asyncio.run(self.request_urls_post(URL_list, data_list))
+            print('POST Request Processed.\n')
             for response in responses:
                 print(json.dumps(response))
+            print('\n')
 
         else:
             # Get ID for index
@@ -408,13 +407,15 @@ class Notion:
         for i in range(len(items)):
             URLs.append(f'https://api.notion.com/v1/pages/{item_ids[i]}/properties/{column_id}')
         # Send requests to API and output results - save first result to file
+        print('Sending GET Request...')
         responses = asyncio.run(self.request_urls(URLs))
+        print('GET Request Processed.\n')
         for response in responses:
             print(json.dumps(response))
+        print('\n')
         self.save_dict(responses[0], 'response.json')
         # Get rollup column type
         column_type = responses[0]['results'][0]['type']
-        print('Column Type:', column_type)
         # Initialize list to save elements to
         elements = []
         # Use type to get data path
@@ -502,4 +503,4 @@ if __name__ == '__main__':
         if rollup[i] == 'Complete':
             indices.append(i)
     # Set data
-    N.set(indices, 'Select', 'Complete')
+    N.set(indices, 'Select', 'In Progress')
